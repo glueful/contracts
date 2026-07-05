@@ -30,3 +30,14 @@ intent.
 dispatch verified successful payments only, with `PaymentConfirmation::amount`
 in integer minor units. The payable owner still compares amount and currency
 against its own record before transitioning business state.
+
+## Email
+
+`EmailTemplateRegistry` lets any extension declare mail templates as data —
+`EmailTemplateDefinition` (key, label, default subject/body, owner) with
+`EmailTemplatePlaceholder` metadata (name, description, sample) that drives
+admin chips and test-sends. Implementations must enforce the collision rule:
+re-registering a key is allowed only for the same owner; a different owner
+claiming an existing key throws at boot. Registrant extensions soft-resolve
+the registry (`has() ? register : skip`), so a missing email channel degrades
+to "templates simply aren't registered".
