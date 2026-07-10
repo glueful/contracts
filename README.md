@@ -44,6 +44,26 @@ fail-closed: `null` when tenancy is inactive, the uuid when on, and
 auto-scoped by the tenancy guard/hook; raw PDO bypasses both, so raw consumers
 use this to decide whether to append a `tenant_uuid` predicate.
 
+`TenantAdministration` provides neutral tenant lifecycle and membership
+operations. Implementations own transition, role, and final-active-owner
+invariants so callers cannot bypass them.
+
+`TenantDomainAdministration` manages normalized tenant host mappings while
+keeping DNS verification separate from operator-controlled activation.
+
+`TenantResolutionProbe` lets an activation flow verify one public host through
+the real resolver and tenant-validation pipeline without bypassing its safety
+checks.
+
+`TenantRequestMiddleware` is the neutral request-time delegate for resolver
+profiles. A host can expose an inert proxy before the tenancy implementation is
+enabled, then delegate without importing the implementation's middleware class.
+
+`TenantProvisioningRunner` runs a callable in the privileged context of a
+`provisioning` tenant. The normal `TenantContextRunner` correctly refuses
+non-active tenants, so seeders that materialize starter content before
+activation use this narrowly-scoped runner instead of a weakened check.
+
 ## Payments
 
 `PaymentCollector` starts a payment for a `PayableReference` and must be
