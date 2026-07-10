@@ -20,6 +20,30 @@ unless it is running an explicitly named system/maintenance path.
 `TenantTableRegistry` lets tenant-aware extensions register tenant-owned tables
 without writing into another extension's config.
 
+`TenantRuntimeReadiness` reports whether the host can resolve tenant-owned
+requests safely (`isReady()`) and how (`mode()`:
+`none | bootstrap_default | full_resolution`). `FullTenantResolutionReadiness`
+is a capability seam bound only when full domain/path/header resolution is
+active — its container presence is how a readiness composite upgrades the mode.
+
+`TenantProvisioner` stands up the first tenant + active owner membership
+through a neutral seam. `provisionDefault()` is idempotent by caller-supplied
+uuid (a crash-then-retry reuses the same tenant); `hasAnyTenant()` lets a
+consumer refuse to provision over a pre-existing install.
+
+`TenantEnforcementProbe` is the read-side view of the tenant-owned table
+registry (`isRegistered()` / `registeredTables()`), so a finalization gate can
+prove every owned table is registered in the serving process.
+
+`TenantContextRunner` runs a callable as a given tenant, as the system channel,
+or for each active tenant — the seam behind seed, sync, and background workers.
+
+`TenantScope` resolves the current tenant uuid for raw-SQL consumers,
+fail-closed: `null` when tenancy is inactive, the uuid when on, and
+`TenantContextRequiredException` when on-but-empty. Builder paths are
+auto-scoped by the tenancy guard/hook; raw PDO bypasses both, so raw consumers
+use this to decide whether to append a `tenant_uuid` predicate.
+
 ## Payments
 
 `PaymentCollector` starts a payment for a `PayableReference` and must be
