@@ -4,6 +4,41 @@ All notable changes to glueful/extension-contracts will be documented in this fi
 
 The format is based on Keep a Changelog, and this project adheres to Semantic Versioning.
 
+## [Unreleased]
+
+## [1.1.0] - 2026-07-10
+
+The tenancy enablement seams: everything a host app needs to take tenancy from
+"off" to "on" — readiness reporting, first-tenant provisioning, enforcement
+probing, tenant-context execution — through interfaces only, so the enablement
+state machine never imports the tenancy extension's concrete classes.
+
+### Added
+- **Tenancy** — `TenantRuntimeReadiness` (can the host resolve tenant-owned
+  requests safely right now? `isReady()` + `mode()` reporting
+  `none | bootstrap_default | full_resolution`; the composite the enablement
+  flow gates on) and `FullTenantResolutionReadiness` (capability seam bound
+  ONLY when full domain/path/header resolution is active — its presence is how
+  the composite learns full resolution exists, so a later resolver swaps the
+  mode without touching storage or the state machine).
+- **Tenancy** — `TenantProvisioner` (`provisionDefault()` stands up the first
+  tenant + active owner membership through a neutral seam, **idempotent by
+  caller-supplied uuid** so a crash-then-retry reuses the same tenant;
+  `hasAnyTenant()` detects pre-existing installs so the consumer can refuse).
+- **Tenancy** — `TenantEnforcementProbe` (read-side view of the tenant-owned
+  table registry: `isRegistered()` / `registeredTables()`; lets a finalization
+  gate PROVE every owned table is actually registered in the serving process
+  instead of trusting a scoped query that would silently succeed unregistered).
+- **Tenancy** — `TenantContextRunner` (run a callable as a given tenant / as the
+  system channel / for-each active tenant; the neutral seam behind seed, sync,
+  and background workers).
+- **Tenancy** — `TenantScope` (fail-closed helper resolving the current tenant
+  uuid for raw-SQL consumers: `null` when tenancy is inactive, the uuid when on,
+  throws `TenantContextRequiredException` when on-but-empty) and its
+  `TenantContextRequiredException`. Builder paths are auto-scoped by the tenancy
+  guard/hook; raw PDO bypasses both, so raw consumers use this to decide whether
+  to append a `tenant_uuid` predicate.
+
 ## [1.0.0] - 2026-07-05
 
 Initial release: the shared seam layer that lets Glueful extensions plug into
