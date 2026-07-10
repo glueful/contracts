@@ -6,6 +6,30 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-07-10
+
+The full-resolution + tenant-management seams: everything a host needs to admit tenant two —
+lifecycle/membership administration, custom-domain administration with independent DNS
+verification, an activation-time resolution probe, a neutral request-middleware delegate, and
+a privileged provisioning-context runner for seeding tenants that normal tenant context
+correctly refuses.
+
+### Added
+- **Tenancy** — `TenantProvisioningRunner`
+  (`runAsProvisioningTenant(string $tenantUuid, callable $fn): mixed`), the privileged context
+  runner used ONLY while materializing a `provisioning` tenant: the normal
+  `TenantContextRunner` correctly rejects non-active tenants, so seeding starter content
+  before activation needs this narrowly-scoped seam instead of a weakened check.
+- **Tenancy** — `TenantAdministration`, the neutral tenant lifecycle and
+  membership-management seam, including provisioning-to-active transitions and
+  final-owner protection as implementation invariants.
+- **Tenancy** — `TenantDomainAdministration`, the neutral custom-domain CRUD,
+  verification, and pre-verified activation seam.
+- **Tenancy** — `TenantResolutionProbe`, an activation-time probe through the
+  real public resolver and tenant-validation pipeline.
+- **Tenancy** — `TenantRequestMiddleware`, a neutral route-middleware delegate
+  for hosts that must remain inert when the tenancy implementation is absent.
+
 ## [1.1.0] - 2026-07-10
 
 The tenancy enablement seams: everything a host app needs to take tenancy from
