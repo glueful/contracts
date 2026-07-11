@@ -31,11 +31,48 @@ interface TenantAdministration
     /** Seed-success boundary: provisioning to active. */
     public function markActive(ApplicationContext $c, string $tenantUuid): void;
 
-    /** @return list<array{uuid:string,slug:string,name:string,status:string}> */
+    /**
+     * @return list<array{
+     *   uuid:string,
+     *   slug:string,
+     *   name:string,
+     *   status:string,
+     *   deleted_at:?string,
+     *   deleted_from_status:?string,
+     *   purge_after:?string
+     * }>
+     */
     public function listTenants(ApplicationContext $c, ?string $status = null): array;
 
     /** @return array{uuid:string,slug:string,name:string,status:string}|null */
     public function getTenant(ApplicationContext $c, string $tenantUuid): ?array;
+
+    /** Move an active or suspended tenant to recoverable trash. */
+    public function deleteTenant(ApplicationContext $c, string $tenantUuid): void;
+
+    /** Restore a trashed tenant to its exact prior active/suspended status. */
+    public function restoreTenant(ApplicationContext $c, string $tenantUuid): void;
+
+    /** Claim the point of no return before product data destruction starts. */
+    public function beginPurge(ApplicationContext $c, string $tenantUuid): void;
+
+    /** Release hosts/memberships and hard-delete a tenant already marked purging. */
+    public function purgeTenantRecord(ApplicationContext $c, string $tenantUuid): void;
+
+    /**
+     * Include-deleted lifecycle projection for restore, purge status, and crash recovery.
+     *
+     * @return array{
+     *   uuid:string,
+     *   slug:string,
+     *   name:string,
+     *   status:string,
+     *   deleted_at:?string,
+     *   deleted_from_status:?string,
+     *   purge_after:?string
+     * }|null
+     */
+    public function getTenantLifecycle(ApplicationContext $c, string $tenantUuid): ?array;
 
     /**
      * Active memberships joined to active tenants for one user.
