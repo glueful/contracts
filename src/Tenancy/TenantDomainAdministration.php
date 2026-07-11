@@ -22,13 +22,43 @@ interface TenantDomainAdministration
     /** Performs DNS verification and returns the resulting verification status. */
     public function verifyDomain(ApplicationContext $c, string $domainUuid): string;
 
+    /** Re-proves a verified or revoked token-bearing domain's DNS ownership. */
+    public function reverifyDomain(
+        ApplicationContext $c,
+        string $domainUuid
+    ): DomainReverificationResult;
+
     public function disableDomain(ApplicationContext $c, string $domainUuid): void;
 
     public function enableDomain(ApplicationContext $c, string $domainUuid): void;
 
     public function removeDomain(ApplicationContext $c, string $domainUuid): void;
 
-    /** @return list<array{uuid:string,host:string,verification_status:string,status:string}> */
+    /** Delete a domain and reserve its host in the cooldown ledger. */
+    public function releaseDomain(ApplicationContext $c, string $domainUuid): void;
+
+    /**
+     * Highest-trust override: atomically consume cooldown and create a pending domain.
+     *
+     * @return array{uuid:string,token:string}
+     */
+    public function overrideCooldownAndClaim(
+        ApplicationContext $c,
+        string $tenantUuid,
+        string $host
+    ): array;
+
+    /**
+     * @return list<array{
+     *   uuid:string,
+     *   host:string,
+     *   verification_status:string,
+     *   status:string,
+     *   last_checked_at:?string,
+     *   last_check_status:?string,
+     *   consecutive_failures:int
+     * }>
+     */
     public function listDomains(ApplicationContext $c, string $tenantUuid): array;
 
     /**
@@ -37,7 +67,10 @@ interface TenantDomainAdministration
      *   tenant_uuid:string,
      *   host:string,
      *   verification_status:string,
-     *   status:string
+     *   status:string,
+     *   last_checked_at:?string,
+     *   last_check_status:?string,
+     *   consecutive_failures:int
      * }|null
      */
     public function getDomain(ApplicationContext $c, string $domainUuid): ?array;
