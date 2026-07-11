@@ -6,6 +6,26 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-07-11
+
+Workspace-deletion, host-retention, and domain re-verification seams — everything a host needs to
+close the tenant lifecycle loop: reversible two-phase deletion, a cooldown-aware domain release that
+prevents host squatting, and background re-verification of custom domains, all through neutral
+contracts.
+
+### Added
+- **Tenancy** — `TenantAdministration` lifecycle methods `deleteTenant()`, `restoreTenant()`,
+  `beginPurge()`, and `purgeTenantRecord()` for reversible trash→purge deletion, plus
+  `getTenantLifecycle()`, an include-deleted projection for restore, purge-status, and crash recovery.
+  The `listTenants()`/`getTenant()` projections gain the lifecycle fields (`deleted_at`,
+  `deleted_from_status`, `purge_after`).
+- **Tenancy** — `TenantDomainAdministration::releaseDomain()` (cooldown-aware host release that
+  `removeDomain()` delegates to), `overrideCooldownAndClaim()` (highest-trust atomic cooldown override
+  + claim), and `reverifyDomain()` (background DNS re-verification of a token-bearing domain).
+- **Tenancy** — `HostCooldownException`, a structured claim conflict exposing only `availableAfter`
+  (never the prior owner), and `DomainReverificationResult`, the neutral outcome DTO for a single
+  re-verification (`verified|mismatch|dns_error|stale|ineligible` plus transition + counters).
+
 ## [1.2.0] - 2026-07-10
 
 The full-resolution + tenant-management seams: everything a host needs to admit tenant two —
