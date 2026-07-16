@@ -6,6 +6,20 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-07-16
+
+The refund seam — the payments contract surface commerce's refund domain issues gateway
+refunds through, keeping commerce free of any concrete payment-provider reference.
+
+### Added
+- **Payments** — `RefundCollector` contract:
+  `refund(ApplicationContext $context, PayableReference $payable, RefundRequest $request): RefundResult`.
+  Providers (e.g. Payvia, once it grows a refund surface) bind it; consumers resolve it
+  softly and fall back to manual refunds when unbound.
+- **Payments** — `RefundRequest` (integer minor-unit `amount`, `currency`,
+  required `idempotencyKey`, optional `reason`) and `RefundResult`
+  (`completed|pending|failed` status constants, optional `providerRef`/`failureReason`).
+
 ## [1.3.0] - 2026-07-11
 
 Workspace-deletion, host-retention, and domain re-verification seams — everything a host needs to
