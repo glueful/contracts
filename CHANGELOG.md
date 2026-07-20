@@ -6,6 +6,29 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-07-20
+
+The payout + dispute payment seams — the contract surface commerce settles seller payouts through
+and ingests provider chargebacks (and their reversals) through, keeping commerce free of any
+concrete payment-provider reference.
+
+### Added
+- **Payments** — `PayoutCollector` contract: `transfer()`, `status()`, and `inspectDestination()`.
+  Providers (e.g. Payvia) bind it to execute a seller payout, poll a payout's status, and inspect a
+  destination's readiness; consumers resolve it softly and fall back to manual payouts when unbound.
+- **Payments** — the payout value objects: `PayoutRequest` (integer minor-unit `amount`, `currency`,
+  required `idempotencyKey`, optional `reason`), `PayoutResult` and `PayoutStatusResult`
+  (`paid|pending|retryable_failure|terminal_failure|unknown` status constants — `PayoutStatusResult`
+  adds `reversed` with a non-negative reversed amount), `PayoutDestination` (`provider`, `accountRef`,
+  optional `metadata`), and `DestinationStatus` (`pending|ready|restricted` readiness with an optional
+  failure code).
+- **Payments** — `ProviderChargebackEvent` (extends `BaseEvent`): the neutral event a payment provider
+  emits when it observes a chargeback or its later reversal (`chargeback|reversal` kinds), carrying
+  `tenantUuid`, `provider`, `providerEventId`, `paymentReference`, a `PayableReference`, integer
+  `amount`, `currency`, optional `reasonCode`, `occurredAt`, and — for a reversal — `relatedEventId`.
+  Validated on construction: non-empty identifiers, positive amount, currency matching the payable,
+  and a required `relatedEventId` whenever the kind is `reversal`.
+
 ## [1.4.0] - 2026-07-16
 
 The refund seam — the payments contract surface commerce's refund domain issues gateway
