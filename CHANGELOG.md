@@ -6,6 +6,14 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 
 ## [Unreleased]
 
+## [1.5.1] - 2026-08-18
+
+### Added
+- Declares the schema-free Glueful manifest (`migrations: "none"`): the package carries an
+  `extra.glueful` block, so the framework 1.79 schema-on-enable contract requires an explicit
+  declaration. Metadata only; no code changes and no framework-floor change.
+
+
 ## [1.5.0] - 2026-07-20
 
 The payout + dispute payment seams — the contract surface commerce settles seller payouts through
