@@ -45,7 +45,7 @@
             "name": "Extension Contracts",
             "displayName": "Extension Contracts",
             "description": "Shared cross-extension contracts for tenancy, payment, and email-template integrations.",
-            "version": "1.5.0",
+            "version": "1.5.1",
             "icon": "assets/icon.png",
             "galleryBanner": {
                 "color": "#334155",
@@ -60,7 +60,8 @@
             "requires": {
                 "glueful": ">=1.71.0",
                 "extensions": []
-            }
+            },
+            "migrations": "none"
         }
     },
     "minimum-stability": "stable",
